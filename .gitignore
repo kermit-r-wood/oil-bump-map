@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test inputs (large; may have third-party copyright; re-add with -f if needed)
+gemini-clean-*.png
+test_impasto.png
+test_hp.jpg
+
+# Debug / generated outputs
+debug_*.png
+*.tmp.png
+
+# Temp dev scripts and notes (single underscore prefix at repo root)
+/_*.py
+/_*.txt
+/_*.md

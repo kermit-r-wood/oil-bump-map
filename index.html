@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oil-Texture Bump Map (UV-Print Ready)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 { color: #2c3e50; }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 1200px;
+            width: 100%;
+            text-align: center;
+        }
+        .settings {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+        .settings label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+        }
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .btn {
+            border: 2px solid gray;
+            color: gray;
+            background-color: white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn:hover { background-color: #f0f0f0; }
+        .upload-btn-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .results {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .image-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 280px;
+        }
+        .image-box img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 10px;
+        }
+        #loading { display: none; margin-top: 20px; font-weight: bold; color: #3498db; }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #3498db;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .preset-desc {
+            color: #666;
+            font-size: 12px;
+            margin-top: 0;
+            margin-bottom: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Oil-Texture Bump Map (UV-Print Ready)</h1>
+        <p>Upload an image; the output is a UV-printer-ready depth map (16-bit grayscale by default) tuned for the Eufy Make E1's slicing-time smoothing.</p>
+
+        <div class="preset-desc">
+            Mode: <strong>scan_replica</strong> &mdash; paint-density driven brush field + luminance-driven height bias.
+            Bright textured regions register as raised paint, dark textured regions as recessed, smooth regions stay mid-gray.
+        </div>
+
+        <div class="settings">
+            <label title="Output bit depth. 16-bit gives smoother gradients in the printer slicer.">
+                Output:
+                <select id="bitDepth">
+                    <option value="16" selected>16-bit PNG</option>
+                    <option value="8">8-bit PNG</option>
+                </select>
+            </label>
+            <label title="Simulated E1 smoothing sigma (px). Default 1.0 ≈ E1 smoothing-1. Set 0 to skip preview.">
+                Sim σ: <input type="number" id="simSigma" value="1.0" step="0.5" min="0" max="6" style="width: 60px;">
+            </label>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;">
+            <div class="upload-btn-wrapper" style="margin-bottom: 0;">
+                <button class="btn">Upload Image</button>
+                <input type="file" id="imageInput" accept="image/*" />
+            </div>
+            <button class="btn" id="recalcBtn" style="display: none;">Recalculate</button>
+        </div>
+
+        <div id="loading">
+            <div class="spinner"></div>
+            <div>Processing image…</div>
+        </div>
+
+        <div class="results">
+            <div class="image-box" id="originalBox" style="display: none;">
+                <h3>Original</h3>
+                <img id="originalImage" src="" alt="Original" />
+            </div>
+            <div class="image-box" id="depthBox" style="display: none;">
+                <h3>Bump Map</h3>
+                <img id="depthImage" src="" alt="Bump Map" />
+                <a id="depthDownload" class="btn" style="margin-top: 12px; text-decoration: none;" download="bump.png">Download PNG</a>
+            </div>
+            <div class="image-box" id="simBox" style="display: none;">
+                <h3>Simulated Print</h3>
+                <img id="simImage" src="" alt="Simulated Print Preview" />
+                <div class="preset-desc" id="simDesc">Approximation of E1 smoothing.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const recalcBtn = document.getElementById('recalcBtn');
+        const originalBox = document.getElementById('originalBox');
+        const originalImage = document.getElementById('originalImage');
+        const depthBox = document.getElementById('depthBox');
+        const depthImage = document.getElementById('depthImage');
+        const depthDownload = document.getElementById('depthDownload');
+        const loading = document.getElementById('loading');
+        const bitDepthSelect = document.getElementById('bitDepth');
+        const simSigma = document.getElementById('simSigma');
+        const simBox = document.getElementById('simBox');
+        const simImage = document.getElementById('simImage');
+        const simDesc = document.getElementById('simDesc');
+
+        let currentFile = null;
+        let currentBumpBlob = null;
+
+        async function generateTexture() {
+            if (!currentFile) return;
+
+            depthBox.style.display = 'none';
+            simBox.style.display = 'none';
+            loading.style.display = 'block';
+
+            const formData = new FormData();
+            formData.append('file', currentFile);
+            formData.append('bit_depth', bitDepthSelect.value);
+
+            try {
+                const response = await fetch('/predict', { method: 'POST', body: formData });
+                if (!response.ok) {
+                    const text = await response.text();
+                    throw new Error('Network error: ' + text);
+                }
+                const blob = await response.blob();
+                currentBumpBlob = blob;
+                const url = URL.createObjectURL(blob);
+                depthImage.src = url;
+                depthDownload.href = url;
+                depthDownload.download = `bump_scan_replica_${bitDepthSelect.value}bit.png`;
+                depthBox.style.display = 'flex';
+
+                await refreshSimPreview();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to generate bump map.\n' + error.message);
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        async function refreshSimPreview() {
+            if (!currentBumpBlob) return;
+            const sigma = parseFloat(simSigma.value);
+            if (!Number.isFinite(sigma) || sigma <= 0) {
+                simBox.style.display = 'none';
+                return;
+            }
+            const fd = new FormData();
+            fd.append('file', currentBumpBlob, 'bump.png');
+            fd.append('sigma', String(sigma));
+            try {
+                const r = await fetch('/preview_smoothed', { method: 'POST', body: fd });
+                if (!r.ok) throw new Error(await r.text());
+                const blob = await r.blob();
+                simImage.src = URL.createObjectURL(blob);
+                simDesc.textContent = `Simulated E1 smoothing at σ=${sigma.toFixed(1)} px (≈ smoothing-${Math.max(1, Math.round(sigma))}).`;
+                simBox.style.display = 'flex';
+            } catch (e) {
+                console.warn('preview_smoothed failed:', e);
+            }
+        }
+
+        imageInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            currentFile = file;
+            originalImage.src = URL.createObjectURL(file);
+            originalBox.style.display = 'flex';
+            recalcBtn.style.display = 'inline-block';
+            generateTexture();
+        });
+        recalcBtn.addEventListener('click', generateTexture);
+        bitDepthSelect.addEventListener('change', generateTexture);
+        simSigma.addEventListener('change', refreshSimPreview);
+    </script>
+</body>
+</html>

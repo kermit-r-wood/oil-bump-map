@@ -14,6 +14,20 @@ heavy ML deps. Total runtime dependency footprint is ~50 MB.
 
 ---
 
+## Example
+
+| Input image | Generated bump map |
+|---|---|
+| ![Input](docs/example/frieren_input.jpg) | ![Bump map](docs/example/frieren_bump.png) |
+
+A digital portrait, processed at its native 2734×1536 with default
+parameters and viewed as 8-bit grayscale (the actual output is 16-bit).
+Notice how the smooth face stays at mid-gray (no false impasto), the
+hair brushwork is raised with stroke direction, and the dark eye
+sockets register as recessed.
+
+---
+
 ## Pipeline
 
 1. **Structure tensor** on the input RGB extracts per-pixel stroke

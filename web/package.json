@@ -1,0 +1,7 @@
+{
+  "name": "depth-map-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Pure-frontend port of the oil-texture bump pipeline. ES modules, no build tooling."
+}

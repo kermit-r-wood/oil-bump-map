@@ -1,0 +1,16 @@
+{
+  "name": "depth-map",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Oil-texture bump map generator (UV-print-ready). Pure-frontend ES modules with CPU / WebGL2 backends.",
+  "scripts": {
+    "dev": "node scripts/dev_server.mjs",
+    "start": "node scripts/dev_server.mjs",
+    "test": "node web/test_node.mjs && node scripts/test_dev_server.mjs",
+    "test:pipeline": "node web/test_node.mjs",
+    "test:server": "node scripts/test_dev_server.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

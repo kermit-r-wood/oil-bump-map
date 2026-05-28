@@ -27,6 +27,9 @@ test_hp.jpg
 debug_*.png
 *.tmp.png
 
+# Test artifacts (web/test_node.mjs writes a sample PNG)
+web/test_node_out.png
+
 # Temp dev scripts and notes (single underscore prefix at repo root)
 /_*.py
 /_*.txt

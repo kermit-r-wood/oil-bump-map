@@ -22,7 +22,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # enablement: true 让本 action 在仓库未启用 Pages 时自动启用，
+      # 并把 source 设为 GitHub Actions。免去手动到 Settings → Pages 的步骤。
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       # 把 web/ 目录打包成 Pages artifact。
       # 注意：我们没有 build 步骤；纯静态资源直接上传即可。

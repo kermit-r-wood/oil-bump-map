@@ -1,13 +1,5 @@
-# Python
-__pycache__/
-*.py[cod]
-*.egg-info/
-.pytest_cache/
-
-# Virtual environments
-venv/
-.venv/
-env/
+# Node
+node_modules/
 
 # IDE / editor
 .vscode/
@@ -31,6 +23,7 @@ debug_*.png
 web/test_node_out.png
 
 # Temp dev scripts and notes (single underscore prefix at repo root)
-/_*.py
+/_*.js
+/_*.mjs
 /_*.txt
 /_*.md

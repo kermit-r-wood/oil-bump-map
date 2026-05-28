@@ -40,15 +40,9 @@ npm run dev
 # then open http://127.0.0.1:8000/
 ```
 
-```powershell
-# Or with Python:
-python -m http.server 8000 --directory web
-```
-
 ```bash
 # macOS / Linux
 npm run dev
-# or: python3 -m http.server 8000 --directory web
 # or any other static server, e.g.: npx serve web
 ```
 
@@ -128,8 +122,7 @@ high the paint is".
 
 ## How it works (preset parameters)
 
-All parameters live in `web/src/presets.js` as a single `PRESET` object
-(`web/src/presets.js`, mirrored from the legacy `pipeline/presets.py`):
+All parameters live in `web/src/presets.js` as a single `PRESET` object:
 
 | Field | Default | Effect |
 |---|---|---|
@@ -205,6 +198,7 @@ depth_map/
 │       ├── main.js             # UI glue (file upload → worker → PNG)
 │       ├── worker.js           # Web Worker entry; runs the pipeline off-main
 │       ├── runner.js           # backend dispatcher + auto-selection
+│       ├── i18n.js             # English / Chinese strings + helpers
 │       ├── backends/
 │       │   ├── cpu.js          # pure-JS pipeline (always available)
 │       │   └── webgl.js        # WebGL2 fragment-shader pipeline
@@ -213,22 +207,18 @@ depth_map/
 │       ├── strokes.js          # CPU: anisotropic LIC stroke field
 │       ├── compose.js          # CPU: paint-density mask + bump composer
 │       ├── postprocess.js      # CPU: unsharp + 8/16-bit quantizer
-│       ├── presets.js          # locked StylePreset (mirrored to GPU constants)
+│       ├── presets.js          # locked StylePreset
 │       ├── filters.js          # Gaussian / box / Sobel / bilinear / percentile
 │       ├── rng.js              # Mulberry32 + Box-Muller standard-normal
 │       └── png.js              # tiny 16-bit grayscale PNG encoder
-├── pipeline/                   # legacy Python reference implementation
-├── tests/                      # legacy pytest suite for the Python reference
-├── app.py                      # legacy FastAPI server (kept for reference; not used)
-├── index.html                  # legacy server-rendered front-end (replaced)
+├── scripts/
+│   ├── dev_server.mjs          # zero-dep Node http static server (npm run dev)
+│   └── test_dev_server.mjs     # smoke test for the dev server
+├── .github/workflows/          # GitHub Pages deploy on push to main
 ├── docs/example/               # input / output sample
+├── package.json                # npm scripts (dev / test) — no runtime deps
 └── README.md                   # this file
 ```
-
-The `pipeline/`, `tests/`, `app.py`, root `index.html`, `requirements.txt`,
-`run.bat` files are kept as the **reference implementation** — useful for
-pinning down expected numerical behaviour or running the offline pytest
-suite. They are not required to use the web app.
 
 ---
 
@@ -284,12 +274,6 @@ shader source sanity). It also writes a sample 256×256 16-bit PNG to
 WebGL backend can only be exercised in a real browser — open the
 dev server and force the backend from the dropdown.
 
-The legacy Python pytest suite still works on the reference impl:
-
-```powershell
-venv\Scripts\python.exe -m pytest tests/ -v
-```
-
 ---
 
 ## Out of scope (intentional)
@@ -307,11 +291,6 @@ venv\Scripts\python.exe -m pytest tests/ -v
 
 Runtime: **none.** Just the browser.
 
-Dev (only for the legacy Python reference implementation; not needed to
-use the web app):
-
-- `fastapi` + `uvicorn` + `python-multipart` — server
-- `opencv-python-headless` — Sobel, Gaussian, box filter
-- `numpy`, `scipy` — array math, LIC vectorization
-- `Pillow` — PNG encode/decode
-- `pytest` + `httpx` — tests
+Dev tooling: **none.** `npm install` does nothing useful — `package.json`
+declares no `dependencies` and no `devDependencies`. The dev server,
+test runner, and CI all use only Node's built-in modules.

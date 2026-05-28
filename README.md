@@ -1,5 +1,7 @@
 # Oil-Texture Bump Map (UV-Print Ready)
 
+**Live Demo:** [https://kermit-r-wood.github.io/oil-bump-map/](https://kermit-r-wood.github.io/oil-bump-map/)
+
 A single-page web app that turns any photograph or painting into a depth/bump
 map ready to UV-print on the **Eufy Make E1**. The pipeline is tuned to
 *fight* the printer's slicing-time smoothing so the printed surface still

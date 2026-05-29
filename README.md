@@ -1,5 +1,9 @@
 # Oil-Texture Bump Map (UV-Print Ready)
 
+**English** | [简体中文](README_zh.md)
+
+---
+
 **Live Demo:** [https://kermit-r-wood.github.io/oil-bump-map/](https://kermit-r-wood.github.io/oil-bump-map/)
 
 A single-page web app that turns any photograph or painting into a depth/bump
@@ -219,7 +223,8 @@ depth_map/
 ├── .github/workflows/          # GitHub Pages deploy on push to main
 ├── docs/example/               # input / output sample
 ├── package.json                # npm scripts (dev / test) — no runtime deps
-└── README.md                   # this file
+├── README.md                   # English documentation
+└── README_zh.md                # Chinese documentation
 ```
 
 ---
